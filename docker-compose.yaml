@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  app:
+    image: swe304
+    container_name: myapp
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_PASSWORD: mysql
+    networks:
+      - mynet
+
+  db:
+    image: mysql:latest
+    container_name: mydb
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: mysql
+      MYSQL_DATABASE: swe304
+    ports:
+      - "3307:3306"
+    networks:
+      - mynet
+
+networks:
+  mynet:
+    driver: bridge
