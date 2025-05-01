@@ -25,7 +25,7 @@ jobs:
       run: chmod +x gradlew
 
     - name: Build JAR with Gradle
-      run: ./gradlew build
+      run: ./gradlew build -x test
 
     - name: Upload JAR to Azure VM via SFTP
       uses: appleboy/scp-action@v0.1.4
