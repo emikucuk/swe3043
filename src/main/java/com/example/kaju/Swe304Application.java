@@ -8,6 +8,7 @@ public class Swe304Application {
 
     public static void main(String[] args) {
         SpringApplication.run(Swe304Application.class, args);
+        System.out.println("Pipeline is working");
     }
 
 }
