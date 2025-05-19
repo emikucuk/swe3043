@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: swe304
-        image: <DOCKERHUB_KULLANICI_ADI>/swe304:latest
+        image: eminkck61/swe304:latest
         ports:
         - containerPort: 8080
         env:
