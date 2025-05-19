@@ -38,7 +38,17 @@ jobs:
         source: build/libs/*.jar
         target: /home/${{ secrets.AZURE_USERNAME }}/
 
-    - name: Restart Application on Azure VM
+    - name: Upload docker-compose.yaml to Azure VM
+      uses: appleboy/scp-action@v0.1.4
+      with:
+        host: ${{ secrets.AZURE_HOST }}
+        username: ${{ secrets.AZURE_USERNAME }}
+        password: ${{ secrets.AZURE_PASSWORD }}
+        port: 22
+        source: docker-compose.yaml
+        target: /home/${{ secrets.AZURE_USERNAME }}/app/
+
+    - name: Setup and Restart Application on Azure VM
       uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.AZURE_HOST }}
@@ -46,8 +56,9 @@ jobs:
         password: ${{ secrets.AZURE_PASSWORD }}
         port: 22
         script: |
-          cd /home/${{ secrets.AZURE_USERNAME }}/app/
-          docker-compose down
+          mkdir -p /home/${{ secrets.AZURE_USERNAME }}/app
+          cd /home/${{ secrets.AZURE_USERNAME }}/app
+          docker-compose down || true
           docker-compose up -d
 
     - name: Login to DockerHub
