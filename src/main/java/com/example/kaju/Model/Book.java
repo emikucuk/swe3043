@@ -1,35 +1,17 @@
 package com.example.kaju.Model;
 
 import com.example.kaju.Dtos.BookDto;
-import jakarta.persistence.*;
 import lombok.Data;
-
 import java.util.List;
 
 @Data
-@Entity
-@Table(name = "books")
 public class Book {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-
-    @Version
     private Long version = 0L;
-
-    @Column(nullable = false)
     private String title;
-
-    @Column(nullable = false)
     private String author;
-
-    @Column(nullable = false)
     private String isbn;
-
-    @Column
     private String description;
-
-    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
     private List<Borrow> borrows;
 
     public Book() {
