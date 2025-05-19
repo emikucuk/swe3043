@@ -6,6 +6,7 @@ pipeline {
         DOCKERHUB_USER = "eminkck61" 
         DOCKERHUB_PASSWORD = "6161.Tsch"
         KUBE_CONFIG = "C:\\Users\\emink\\.kube\\config"
+        KUBECONFIG = "C:\\Users\\emink\\.kube\\config"
     }
 
     triggers {
@@ -40,8 +41,8 @@ pipeline {
         }
         stage('K8s Deploy') {
             steps {
-                bat 'kubectl apply -f deployment.yaml --validate=false'
-                bat 'kubectl apply -f service.yaml --validate=false'
+                bat 'set KUBECONFIG=%KUBE_CONFIG% && kubectl apply -f deployment.yaml --validate=false'
+                bat 'set KUBECONFIG=%KUBE_CONFIG% && kubectl apply -f service.yaml --validate=false'
             }
         }
     }
