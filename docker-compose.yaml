@@ -8,6 +8,7 @@ services:
       - "8081:8081"
     networks:
       - mynet
+
 networks:
   mynet:
-    driver: bridge
+    driver: bridge 
