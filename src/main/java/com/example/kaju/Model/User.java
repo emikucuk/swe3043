@@ -1,26 +1,13 @@
 package com.example.kaju.Model;
-import jakarta.persistence.*;
 import com.example.kaju.Dtos.UserDto;
 import lombok.Data;
 
 @Data
-@Entity
-@Table(name = "users")
 public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-
-    @Version
     private Long version = 0L;
-
-    @Column(nullable = false)
     private String name;
-
-    @Column(nullable = false, unique = true)
     private String email;
-
-    @Column
     private String address;
 
     public User() {
