@@ -4,6 +4,7 @@ pipeline {
     environment {
         IMAGE_NAME = "swe304"
         DOCKERHUB_USER = "eminkck61" 
+        DOCKERHUB_PASSWORD = "6161.Tsch"
     }
 
     triggers {
@@ -28,7 +29,7 @@ pipeline {
         }
         stage('Docker Login') {
             steps {
-                bat "docker login -u %DOCKERHUB_USER% -p your_dockerhub_password"
+                bat "docker login -u %DOCKERHUB_USER% -p %DOCKERHUB_PASSWORD%"
             }
         }
         stage('Push to DockerHub') {
