@@ -89,7 +89,8 @@ jobs:
         script: |
           mkdir -p /home/${{ secrets.AZURE_USERNAME }}/app
           cd /home/${{ secrets.AZURE_USERNAME }}/app
-          docker-compose down || true
+          docker-compose down --remove-orphans || true
+          docker rm -f myapp || true
           docker-compose up -d
 
     - name: Verify Deployment
