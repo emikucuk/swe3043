@@ -5,6 +5,7 @@ pipeline {
         IMAGE_NAME = "swe304"
         DOCKERHUB_USER = "eminkck61" 
         DOCKERHUB_PASSWORD = "6161.Tsch"
+        KUBE_CONFIG = "C:\\Users\\emink\\.kube\\config"
     }
 
     triggers {
