@@ -7,90 +7,89 @@ import com.example.kaju.Exception.ResourceNotFoundException;
 import com.example.kaju.Model.Book;
 import com.example.kaju.Model.Borrow;
 import com.example.kaju.Model.User;
-import com.example.kaju.Repository.BookRepository;
-import com.example.kaju.Repository.BorrowRepository;
-import com.example.kaju.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class BorrowServiceImpl implements BorrowService {
 
+    private final Map<Long, Borrow> borrows = new ConcurrentHashMap<>();
+    
     @Autowired
-    private BorrowRepository borrowRepository;
-
+    private UserServiceImpl userService;
+    
     @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private BookRepository bookRepository;
+    private BookServiceImpl bookService;
 
     @Override
     public BorrowDto getBorrowById(long id) {
-        return borrowRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(ErrorMessages.BORROW_NOT_FOUND + ": " + id))
-                .viewAsBorrowDtoWithUserAndBook();
+        Borrow borrow = borrows.get(id);
+        if (borrow == null) {
+            throw new ResourceNotFoundException(ErrorMessages.BORROW_NOT_FOUND + ": " + id);
+        }
+        return borrow.viewAsBorrowDtoWithUserAndBook();
     }
 
     @Override
     public List<BorrowDto> getAllBorrows() {
-        return borrowRepository.findAll()
+        return borrows.values()
                 .stream()
                 .map(Borrow::viewAsBorrowDtoWithUserAndBook)
                 .toList();
     }
 
     @Override
-    @Transactional
     public BorrowDto createBorrow(Borrow borrow) {
-        if(borrowRepository.findById(borrow.getId()).isPresent()) {
+        if (borrows.containsKey(borrow.getId())) {
             throw new ResourceAlreadyExistsException(ErrorMessages.BORROW_ALREADY_EXISTS + ": " + borrow.getId());
         }
-
-        // Get the user and book entities
-        User user = userRepository.findById(borrow.getUser().getId())
-                .orElseThrow(() -> new ResourceNotFoundException(ErrorMessages.USER_NOT_FOUND + ": " + borrow.getUser().getId()));
         
-        Book book = bookRepository.findById(borrow.getBook().getId())
-                .orElseThrow(() -> new ResourceNotFoundException(ErrorMessages.BOOK_NOT_FOUND + ": " + borrow.getBook().getId()));
-
-        // Set the user and book references
-        borrow.setUser(user);
-        borrow.setBook(book);
-
-        return borrowRepository.save(borrow).viewAsBorrowDtoWithUserAndBook();
+        // Verify user and book exist
+        userService.getUserById(borrow.getUser().getId());
+        bookService.getBookById(borrow.getBook().getId());
+        
+        borrows.put(borrow.getId(), borrow);
+        return borrow.viewAsBorrowDtoWithUserAndBook();
     }
 
     @Override
-    @Transactional
     public BorrowDto updateBorrow(long id, Borrow updatedBorrow) {
-        Borrow existingBorrow = borrowRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(ErrorMessages.BORROW_NOT_FOUND + ": " + id));
+        Borrow existingBorrow = borrows.get(id);
+        if (existingBorrow == null) {
+            throw new ResourceNotFoundException(ErrorMessages.BORROW_NOT_FOUND + ": " + id);
+        }
         
-        // Get the user and book entities
-        User user = userRepository.findById(updatedBorrow.getUser().getId())
-                .orElseThrow(() -> new ResourceNotFoundException(ErrorMessages.USER_NOT_FOUND + ": " + updatedBorrow.getUser().getId()));
+        // Verify user and book exist if they are being updated
+        if (updatedBorrow.getUser() != null) {
+            userService.getUserById(updatedBorrow.getUser().getId());
+        }
+        if (updatedBorrow.getBook() != null) {
+            bookService.getBookById(updatedBorrow.getBook().getId());
+        }
         
-        Book book = bookRepository.findById(updatedBorrow.getBook().getId())
-                .orElseThrow(() -> new ResourceNotFoundException(ErrorMessages.BOOK_NOT_FOUND + ": " + updatedBorrow.getBook().getId()));
-
         existingBorrow.setBorrowDate(updatedBorrow.getBorrowDate());
         existingBorrow.setReturnDate(updatedBorrow.getReturnDate());
         existingBorrow.setReturned(updatedBorrow.isReturned());
-        existingBorrow.setUser(user);
-        existingBorrow.setBook(book);
+        if (updatedBorrow.getUser() != null) {
+            existingBorrow.setUser(updatedBorrow.getUser());
+        }
+        if (updatedBorrow.getBook() != null) {
+            existingBorrow.setBook(updatedBorrow.getBook());
+        }
         
-        return borrowRepository.save(existingBorrow).viewAsBorrowDtoWithUserAndBook();
+        borrows.put(id, existingBorrow);
+        return existingBorrow.viewAsBorrowDtoWithUserAndBook();
     }
 
     @Override
-    @Transactional
     public void deleteBorrow(long id) {
-        Borrow borrow = borrowRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(ErrorMessages.BORROW_NOT_FOUND + ": " + id));
-        borrowRepository.delete(borrow);
+        if (!borrows.containsKey(id)) {
+            throw new ResourceNotFoundException(ErrorMessages.BORROW_NOT_FOUND + ": " + id);
+        }
+        borrows.remove(id);
     }
 } 

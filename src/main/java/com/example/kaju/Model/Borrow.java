@@ -1,36 +1,17 @@
 package com.example.kaju.Model;
 
 import com.example.kaju.Dtos.BorrowDto;
-import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDate;
 
 @Data
-@Entity
-@Table(name = "borrows")
 public class Borrow {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-
-    @Version
     private Long version = 0L;
-
-    @Column(nullable = false)
     private LocalDate borrowDate;
-
-    @Column
     private LocalDate returnDate;
-
-    @Column(nullable = false)
     private boolean isReturned;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
     private User user;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "book_id", nullable = false)
     private Book book;
 
     public Borrow() {
@@ -63,5 +44,4 @@ public class Borrow {
     public BorrowDto viewAsBorrowDtoWithUserAndBook() {
         return new BorrowDto(id, borrowDate, returnDate, isReturned, user.viewAsUserDto(), book.viewAsBookDto());
     }
-
 }
