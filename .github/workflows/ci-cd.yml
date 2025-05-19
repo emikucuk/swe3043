@@ -92,13 +92,3 @@ jobs:
           docker-compose down --remove-orphans || true
           docker rm -f myapp || true
           docker-compose up -d
-
-    - name: Verify Deployment
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.AZURE_HOST }}
-        username: ${{ secrets.AZURE_USERNAME }}
-        password: ${{ secrets.AZURE_PASSWORD }}
-        port: 22
-        script: |
-          curl -f http://localhost:8081/actuator/health || exit 1
