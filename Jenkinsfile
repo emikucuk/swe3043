@@ -12,7 +12,7 @@ pipeline {
     stages {
         stage('Clone') {
             steps {
-                git 'https://github.com/eminkucuk612/swe3043.git'
+                git 'https://github.com/emikucuk/swe3043.git'
             }
         }
         stage('Build') {

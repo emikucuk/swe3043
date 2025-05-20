@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   app:
-    image: eminkucuk612/swe304:latest
+    image: eminkck61/swe304:latest
     container_name: myapp
     ports:
       - "8081:8081"
