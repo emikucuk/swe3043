@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         IMAGE_NAME = "eminkck61/swe304:latest"
+        KUBECONFIG = credentials('kubeconfig-path')
     }
 
     triggers {
@@ -39,8 +40,8 @@ pipeline {
         }
         stage('K8s Deploy') {
             steps {
-                bat 'kubectl apply -f deployment.yaml --validate=false'
-                bat 'kubectl apply -f service.yaml --validate=false'
+                bat 'kubectl apply -f deployment.yaml --validate=false --kubeconfig=%KUBECONFIG%'
+                bat 'kubectl apply -f service.yaml --validate=false --kubeconfig=%KUBECONFIG%'
             }
         }
     }
