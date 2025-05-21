@@ -2,13 +2,7 @@ version: '3.8'
 
 services:
   app:
-    image: swe304
+    image: eminkck61/swe304:latest
     container_name: myapp
     ports:
       - "8081:8081"
-    networks:
-      - mynet
-
-networks:
-  mynet:
-    driver: bridge 

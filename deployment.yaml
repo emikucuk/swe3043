@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: swe304-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: swe304
+  template:
+    metadata:
+      labels:
+        app: swe304
+    spec:
+      containers:
+        - name: swe304
+          image: eminkck61/swe304:latest
+          ports:
+            - containerPort: 8081

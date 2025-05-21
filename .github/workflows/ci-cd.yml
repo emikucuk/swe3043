@@ -1,89 +1,63 @@
-name: CI/CD Pipeline
+# name: CI/CD Pipeline
 
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    types: [closed]
-    branches: [ master ]
+# on:
+#   push:
+#     branches: [ master ]
+#   pull_request:
+#     types: [closed]
+#     branches: [ master ]
 
-jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
+# jobs:
+#   build-and-deploy:
+#     runs-on: ubuntu-latest
 
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+#     steps:
+#     - name: Checkout code
+#       uses: actions/checkout@v4
 
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        cache: 'gradle'
+#     - name: Set up JDK 17
+#       uses: actions/setup-java@v4
+#       with:
+#         java-version: '17'
+#         distribution: 'temurin'
+#         cache: 'gradle'
 
-    - name: Grant execute permission for Gradle wrapper
-      run: chmod +x gradlew
+#     - name: Grant execute permission for Gradle wrapper
+#       run: chmod +x gradlew
 
-    - name: Upload JAR to Azure VM via SFTP
-      uses: appleboy/scp-action@v0.1.4
-      with:
-        host: ${{ secrets.AZURE_HOST }}
-        username: ${{ secrets.AZURE_USERNAME }}
-        password: ${{ secrets.AZURE_PASSWORD }}
-        port: 22
-        source: build/libs/*.jar
-        target: /home/${{ secrets.AZURE_USERNAME }}/
+#     - name: Build with Gradle
+#       run: ./gradlew build
 
-    - name: Restart Application on Azure VM
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.AZURE_HOST }}
-        username: ${{ secrets.AZURE_USERNAME }}
-        password: ${{ secrets.AZURE_PASSWORD }}
-        port: 22
-        script: |
-          cd /home/${{ secrets.AZURE_USERNAME }}/app/
-          docker-compose down
-          docker-compose up -d
+#     - name: Upload JAR to Azure VM via SFTP
+#       uses: appleboy/scp-action@v0.1.4
+#       with:
+#         host: ${{ secrets.AZURE_HOST }}
+#         username: ${{ secrets.AZURE_USERNAME }}
+#         password: ${{ secrets.AZURE_PASSWORD }}
+#         port: 22
+#         source: build/libs/*.jar
+#         target: /home/${{ secrets.AZURE_USERNAME }}/
 
-    - name: Login to DockerHub
-      uses: docker/login-action@v3
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
+#     - name: Upload docker-compose.yaml to Azure VM
+#       uses: appleboy/scp-action@v0.1.4
+#       with:
+#         host: ${{ secrets.AZURE_HOST }}
+#         username: ${{ secrets.AZURE_USERNAME }}
+#         password: ${{ secrets.AZURE_PASSWORD }}
+#         port: 22
+#         source: docker-compose.yaml
+#         target: /home/${{ secrets.AZURE_USERNAME }}/app/
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-
-    - name: Extract metadata for Docker
-      id: meta
-      uses: docker/metadata-action@v5
-      with:
-        images: ${{ secrets.DOCKERHUB_USERNAME }}/swe304
-        tags: |
-          type=raw,value=latest
-          type=sha,format=short
-          type=ref,event=branch
-
-    - name: Build and push Docker image
-      uses: docker/build-push-action@v5
-      with:
-        context: .
-        push: true
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
-        build-args: |
-          JAR_FILE=build/libs/swe304-0.0.1-SNAPSHOT.jar
-
-    - name: Verify Deployment
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.AZURE_HOST }}
-        username: ${{ secrets.AZURE_USERNAME }}
-        password: ${{ secrets.AZURE_PASSWORD }}
-        port: 22
-        script: |
-          curl -f http://localhost:8081/actuator/health || exit 1
+#     - name: Setup and Restart Application on Azure VM
+#       uses: appleboy/ssh-action@v1.0.3
+#       with:
+#         host: ${{ secrets.AZURE_HOST }}
+#         username: ${{ secrets.AZURE_USERNAME }}
+#         password: ${{ secrets.AZURE_PASSWORD }}
+#         port: 22
+#         script: |
+#           mkdir -p /home/${{ secrets.AZURE_USERNAME }}/app
+#           cd /home/${{ secrets.AZURE_USERNAME }}/app
+#           docker-compose down --remove-orphans || true
+#           docker rm -f myapp || true
+#           docker-compose up -d
