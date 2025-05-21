@@ -39,8 +39,8 @@ pipeline {
         }
         stage('K8s Deploy') {
             steps {
-                bat 'kubectl apply -f deployment.yaml --validate=false --kubeconfig=C:\\Users\\Erdem\\.kube\\config'
-                bat 'kubectl apply -f service.yaml --validate=false --kubeconfig=C:\\Users\\Erdem\\.kube\\config'
+                bat 'kubectl apply -f deployment.yaml --validate=false'
+                bat 'kubectl apply -f service.yaml --validate=false'
             }
         }
     }
